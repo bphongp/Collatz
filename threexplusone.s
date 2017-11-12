@@ -6,26 +6,33 @@
 
 threexplusone:
 	;; prologue
-	xor	rax, rax	;set return to 0
-	mov	rdi, [rsp+2]
-	cmp	rdi, 1		;if num=0 then done
-	je	end		;jump to end
-	jmp	recurse
-recurse:	
-	shr	rdi, 1
-	jnc	even
-	shr	rdi, 1
-	imul	rdi, 3
-	add 	rdi, 1
-	push	rdi
-	call	threexplusone
-	inc 	rax
+	xor	rax, rax
+	mov	rbx, rdi	;use diff var
+	cmp	rbx, 1		;base case--if num=0 then done
+	je	end		;jump to end if num equal
+	jmp	odd
+odd:	
+	mov	rbx, rdi
+	shr	rbx, 1		;shift right to divide by 2
+	jnc	even		;check if there is remainder for the divide jump if there is
+	mov	rbx, rdi	;restore register before divide
+	imul	rbx, 3		;multiply by 3
+	add 	rbx, 1		;add 1
+	mov	rdi, rbx	;save into reg
+	push	rbx		;save onto stack
+	call	threexplusone	;recursive call
+	pop 	rbx
+	inc 	rax		;count ++
 	jmp	end
 even:
-	push	rdi
-	call 	threexplusone
-	inc 	rax
-	jmp 	end
+	mov	rbx, rdi
+	shr	rbx, 1		;divide by 2
+	mov	rdi, rbx
+	push	rbx		;save
+	call 	threexplusone	;recursive call
+	pop 	rbx
+	inc 	rax		;count++
+	jmp 	end		
 end:
 	ret
 	;;nasm -f elf64 -g -o threexplusone.o threexplusone.s
